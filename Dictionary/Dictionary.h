@@ -104,9 +104,16 @@ inline Dictionary<TKey, TValue>::~Dictionary()
 template<typename TKey, typename TValue>
 inline void Dictionary<TKey, TValue>::clear()
 {
-	for (int i = 0; i < getCount(); i++)
-		delete m_items;
+	//delete m_items;
+	Item* itemArray = m_items;
 
+	for (int i = 0; i < getCount(); i++)
+	{
+		if (itemArray != nullptr)
+			remove(m_items[i].itemKey);
+	}
+
+	m_items = nullptr;
 	m_count = 0;
 }
 
@@ -185,14 +192,14 @@ inline bool Dictionary<TKey, TValue>::remove(const TKey key)
 
 	bool itemRemoved = false;
 
-	Item* tempItem = new Item[getCount() - 1];
+	Item* tempItemArray = new Item[getCount() - 1];
 	int j = 0;
 	
 	for (int i = 0; i < getCount(); i++)
 	{
 		if (m_items[i].itemKey != key)
 		{
-			tempItem[j] = m_items[i];
+			tempItemArray[j] = m_items[i];
 			j++;
 		}
 		else
@@ -202,7 +209,7 @@ inline bool Dictionary<TKey, TValue>::remove(const TKey key)
 	}
 
 	//delete m_items;
-	m_items = tempItem;
+	m_items = tempItemArray;
 	m_count--;
 	return itemRemoved;
 
@@ -216,19 +223,21 @@ inline bool Dictionary<TKey, TValue>::remove(const TKey key, TValue& value)
 
 	bool itemRemoved = false;
 
-	Item* tempItemArray = new Item[m_count - 1];
+	Item* tempItemArray = new Item[getCount() - 1];
 	int j = 0;
 	
 	for (int i = 0; i < getCount(); i++)
 	{
 		if (m_items[i].itemKey != key && m_items[i].itemValue != value)
 		{
-			tempItemArray[j].itemKey = m_items[i].itemKey;
-			tempItemArray[j].itemValue = m_items[i].itemValue;
+			tempItemArray[j] = m_items[i];
 			j++;
 		}
 		else
+		{
+			value = m_items[i].itemValue;
 			itemRemoved = true;
+		}
 	}
 
 	delete m_items;
@@ -246,8 +255,8 @@ inline int Dictionary<TKey, TValue>::getCount() const
 template<typename TKey, typename TValue>
 const Dictionary<TKey, TValue>& Dictionary<TKey, TValue>::operator=(const Dictionary<TKey, TValue>& other)
 {
-	//Delete the items in the list you want to copy
-	delete m_items;
+	
+	clear();
 
 	Item* tempItemArray = other.m_items;
 
@@ -265,15 +274,14 @@ const Dictionary<TKey, TValue>& Dictionary<TKey, TValue>::operator=(const Dictio
 template<typename TKey, typename TValue>
 inline TValue Dictionary<TKey, TValue>::operator[](const TKey key)
 {
-	Item* itemValueToFind = m_items;
-
-	for (int i = 0; i < getCount(); i++)
+	TValue value;
+	
+	if (tryGetValue(key, value))
 	{
-		if (itemValueToFind->itemKey == key)
-			tryGetValue(key, itemValueToFind->itemValue);
+		std::cout << value << std::endl;
+		return value;
 	}
-
-	std::cout << itemValueToFind->itemValue << std::endl;
-	return itemValueToFind->itemValue;
+	else
+		return NULL;
 }
 
