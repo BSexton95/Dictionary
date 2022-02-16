@@ -50,6 +50,8 @@ public:
 	/// <summary>
 	/// Creates a new item with the given key and value and adds it to the dictionary
 	/// </summary>
+	/// /// <param name="key">The item key to be added</param>
+	/// <param name="value">The item value to be added</param>
 	void addItem(const TKey& key, const TValue& value);
 
 	/// <summary>
@@ -70,18 +72,18 @@ public:
 	/// <summary>
 	/// Gets the number of items in the dictionary
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>The count</returns>
 	int getCount() const;
 
 	/// <summary>
 	/// Copies an item array over to another.
 	/// </summary>
 	/// <param name="other">The list to copy over</param>
-	/// <returns></returns>
+	/// <returns>The dictionary</returns>
 	const Dictionary<TKey, TValue>& operator= (const Dictionary<TKey, TValue>& other);
 
 	/// <param name="key">The key that is attached to the item that you want to find the value of</param>
-	/// <returns>An item value that has the key</returns>
+	/// <returns>The item value of the key that matche the items key</returns>
 	TValue operator[](const TKey key);
 
 private:
