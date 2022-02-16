@@ -8,8 +8,8 @@ void main()
 	inventory.addItem(1, 4);
 	inventory.addItem(2, 5);
 	inventory.addItem(3, 6);
-	//inventory.remove(1);
-	//std::cout << inventory.getCount() << std::endl;
+	inventory.remove(1);
+	std::cout << inventory.getCount() << std::endl;
 	inventory.containsKey(2);
 	inventory.containsValue(5);
 

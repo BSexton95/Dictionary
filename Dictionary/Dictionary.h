@@ -5,9 +5,21 @@ template<typename TKey, typename TValue>
 class Dictionary
 {
 public:
+	/// <summary>
+	/// Constructor for Dictionary
+	/// </summary>
 	Dictionary<TKey, TValue>() {};
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="other"></param>
 	Dictionary<TKey, TValue>(const Dictionary<TKey, TValue>& other);
-	~Dictionary<TKey, TValue>() {};
+
+	/// <summary>
+	/// Deconstructor for Dictionary
+	/// </summary>
+	~Dictionary<TKey, TValue>();
 
 	/// <summary>
 	/// Deletes all items in dictionary
@@ -81,11 +93,20 @@ inline Dictionary<TKey, TValue>::Dictionary(const Dictionary<TKey, TValue>& othe
 	m_count = other.m_count;
 }
 
+template<typename TKey, typename TValue>
+inline Dictionary<TKey, TValue>::~Dictionary()
+{
+	delete m_items;
+	m_count = 0;
+}
+
 
 template<typename TKey, typename TValue>
 inline void Dictionary<TKey, TValue>::clear()
 {
-	delete m_items;
+	for (int i = 0; i < getCount(); i++)
+		delete m_items;
+
 	m_count = 0;
 }
 
@@ -126,8 +147,13 @@ inline bool Dictionary<TKey, TValue>::tryGetValue(const TKey key, TValue& value)
 {
 	for (int i = 0; i < getCount(); i++)
 	{
-		if (m_items[i].itemKey == key && m_items[i].itemValue == value)
+		if (m_items[i].itemKey == key)
+		{
+			value = m_items[i].itemValue;
 			return true;
+		}
+		else
+			return false;
 	}
 }
 
@@ -137,66 +163,78 @@ inline void Dictionary<TKey, TValue>::addItem(const TKey& key, const TValue& val
 	if (containsKey(key))
 		return;
 
-	Item* tempItem = new Item [m_count + 1];
+	Item* tempItemArray = new Item[getCount() + 1];
 
 	for (int i = 0; i < getCount(); i++)
 	{
-		tempItem[i].itemKey = key;
-		tempItem[i].itemValue = value;
+		tempItemArray[i] = m_items[i];
 	}
 	
-	tempItem[getCount()].itemKey = key;
-	tempItem[getCount()].itemValue = value;
+	tempItemArray[getCount()].itemKey = key;
+	tempItemArray[getCount()].itemValue = value;
 	delete m_items;
-	m_items = tempItem;
+	m_items = tempItemArray;
 	m_count++;
 }
 
 template<typename TKey, typename TValue>
 inline bool Dictionary<TKey, TValue>::remove(const TKey key)
 {
-	if (!containsKey(key))
+	if (getCount() <= 0)
 		return false;
 
+	bool itemRemoved = false;
 
-	Item* tempItem = new Item[m_count - 1];
-
+	Item* tempItem = new Item[getCount() - 1];
+	int j = 0;
+	
 	for (int i = 0; i < getCount(); i++)
 	{
 		if (m_items[i].itemKey != key)
 		{
-			tempItem[i].itemKey = m_items[i].itemKey;
+			tempItem[j] = m_items[i];
+			j++;
+		}
+		else
+		{
+			itemRemoved = true;
 		}
 	}
 
-	delete m_items;
+	//delete m_items;
 	m_items = tempItem;
 	m_count--;
-	return true;
+	return itemRemoved;
 
 }
 
 template<typename TKey, typename TValue>
 inline bool Dictionary<TKey, TValue>::remove(const TKey key, TValue& value)
 {
-	if (!containsKey(key) && !containsValue(value))
+	if (getCount() <= 0)
 		return false;
 
-	Item* tempItem = new Item[m_count - 1];
+	bool itemRemoved = false;
 
+	Item* tempItemArray = new Item[m_count - 1];
+	int j = 0;
+	
 	for (int i = 0; i < getCount(); i++)
 	{
 		if (m_items[i].itemKey != key && m_items[i].itemValue != value)
 		{
-			tempItem[i].itemKey = m_items[i].itemKey;
-			tempItem[i].itemValue = m_items[i].itemValue;
+			tempItemArray[j].itemKey = m_items[i].itemKey;
+			tempItemArray[j].itemValue = m_items[i].itemValue;
+			j++;
 		}
+		else
+			itemRemoved = true;
 	}
 
 	delete m_items;
-	m_items = tempItem;
+	m_items = tempItemArray;
 	m_count--;
-	return true;
+	return itemRemoved;
 }
 
 template<typename TKey, typename TValue>
@@ -210,19 +248,18 @@ const Dictionary<TKey, TValue>& Dictionary<TKey, TValue>::operator=(const Dictio
 {
 	//Delete the items in the list you want to copy
 	delete m_items;
-	Dictionary<TKey, TValue>* tempDict = new Dictionary<TKey, TValue>();
-	tempDict->m_count = other.getCount();
-	tempDict->m_items = new Item();
 
-	//While the count is less than i...
+	Item* tempItemArray = other.m_items;
+
 	for (int i = 0; i < other.getCount(); i++)
 	{
-		//...copy the items key and value into the new items list
-		tempDict->m_items[i] = other.m_items[i];
+		tempItemArray[i].itemKey = other.m_items[i].itemKey;
+		tempItemArray[i].itemValue = other.m_items[i].itemValue;
 	}
-	
-	
-	return *tempDict;
+
+	m_count = other.getCount();
+
+	return *this;
 }
 
 template<typename TKey, typename TValue>
